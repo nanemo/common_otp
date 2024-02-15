@@ -1,31 +1,33 @@
 package com.poject.common.config;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.poject.common.vault.Config;
-import com.poject.common.vault.exchange.ExchangeData;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 @Configuration
 public class ApplicationConfiguration {
-    public static final ObjectMapper jsonMapper = new ObjectMapper().registerModule(new JavaTimeModule());
     public static final Map<String, String> mimeType = new HashMap<>();
 
     private String urlSmsServiceSend;
     private String expireDuration;
     private String vaultDBUrl;
-    private String vaultExchangeUrl;
+    @Value("${spring.mail.host}")
+    private String host;
+    @Value("${spring.mail.port}")
+    private int port;
+    @Value("${spring.mail.username}")
+    private String username;
+    @Value("${spring.mail.password}")
+    private String password;
 
     @Bean
     public static Map<String, String> setMimeType() {
@@ -47,26 +49,21 @@ public class ApplicationConfiguration {
         return mimeType;
     }
 
-    public String getVaultExchangeUrl() {
-        return vaultExchangeUrl;
-    }
-
-    @Value("${exchange.file.path:/default/exchange/path}")
-    public ApplicationConfiguration setVaultExchangeUrl(String vaultExchangeUrl) {
-        this.vaultExchangeUrl = vaultExchangeUrl;
-        return this;
-    }
-
     @Bean
-    @Lazy
     public JavaMailSenderImpl javaMailSender() throws IOException {
-        JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
+        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+        mailSender.setHost(host);
+        mailSender.setPort(port);
+        mailSender.setUsername(username);
+        mailSender.setPassword(password);
 
-        TypeReference<Config<ExchangeData>> reference = new TypeReference<>() {};
-        Config<ExchangeData> databaseConfig = jsonMapper.readValue(new File(vaultExchangeUrl), reference);
-        ExchangeData data = databaseConfig.getData().getData();
-        javaMailSender.setPassword(data.getMailPassword()); //data.getMailPassword()
-        return javaMailSender;
+        Properties props = mailSender.getJavaMailProperties();
+        props.put("mail.transport.protocol", "smtp");
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.debug", "true");
+
+        return mailSender;
     }
 
     public String getVaultDBUrl() {
