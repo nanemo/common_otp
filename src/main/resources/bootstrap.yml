@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: common
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      config:
+        enabled: true
+#        prefix: CONSULPATH

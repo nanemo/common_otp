@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <springProperty scope="context" name="appName" source="spring.application.name"/>
+    <contextName>${appName}</contextName>
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </layout>
+    </appender>
+    <appender name="all"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>/app/log/${appName}/${appName}.log</file>
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <contextName>
+                    <fieldName>name</fieldName>
+                </contextName>
+                <timestamp>
+                    <fieldName>ts</fieldName>
+                    <timeZone>UTC+4</timeZone>
+                </timestamp>
+                <loggerName>
+                    <fieldName>logger</fieldName>
+                </loggerName>
+                <logLevel>
+                    <fieldName>level</fieldName>
+                </logLevel>
+                <callerData>
+                    <classFieldName>class</classFieldName>
+                    <methodFieldName>method</methodFieldName>
+                    <lineFieldName>line</lineFieldName>
+                    <fileFieldName>file</fileFieldName>
+                </callerData>
+                <threadName>
+                    <fieldName>thread</fieldName>
+                </threadName>
+                <mdc/>
+                <arguments>
+                    <includeNonStructuredArguments>false</includeNonStructuredArguments>
+                </arguments>
+                <stackTrace>
+                    <fieldName>stack</fieldName>
+                </stackTrace>
+                <message>
+                    <fieldName>msg</fieldName>
+                </message>
+            </providers>
+        </encoder>
+        <rollingPolicy
+                class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!--            rollover daily and when the file reaches 10 MegaBytes-->
+            <!--            <fileNamePattern>C:\Users\ASUS\Desktop\azericard\new\receiver\log\${appName}\app-%d{yyyy-MM-dd}.%i.log.bak</fileNamePattern>-->
+            <fileNamePattern>/app/log/${appName}/archive/${appName}-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+
+            <timeBasedFileNamingAndTriggeringPolicy
+                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>250MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+    </appender>
+
+    <!--    <appender name="business"-->
+    <!--              class="ch.qos.logback.core.rolling.RollingFileAppender">-->
+    <!--        <file>/app/log/${appName}/${appName}-debug.log</file>-->
+    <!--        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">-->
+    <!--            <providers>-->
+    <!--                <contextName>-->
+    <!--                    <fieldName>name</fieldName>-->
+    <!--                </contextName>-->
+    <!--                <timestamp>-->
+    <!--                    <fieldName>ts</fieldName>-->
+    <!--                    <timeZone>UTC+4</timeZone>-->
+    <!--                </timestamp>-->
+    <!--                <loggerName>-->
+    <!--                    <fieldName>logger</fieldName>-->
+    <!--                </loggerName>-->
+    <!--                <logLevel>-->
+    <!--                    <fieldName>level</fieldName>-->
+    <!--                </logLevel>-->
+    <!--                <callerData>-->
+    <!--                    <classFieldName>class</classFieldName>-->
+    <!--                    <methodFieldName>method</methodFieldName>-->
+    <!--                    <lineFieldName>line</lineFieldName>-->
+    <!--                    <fileFieldName>file</fileFieldName>-->
+    <!--                </callerData>-->
+    <!--                <threadName>-->
+    <!--                    <fieldName>thread</fieldName>-->
+    <!--                </threadName>-->
+    <!--                <mdc/>-->
+    <!--                <arguments>-->
+    <!--                    <includeNonStructuredArguments>false</includeNonStructuredArguments>-->
+    <!--                </arguments>-->
+    <!--                <stackTrace>-->
+    <!--                    <fieldName>stack</fieldName>-->
+    <!--                </stackTrace>-->
+    <!--                <message>-->
+    <!--                    <fieldName>msg</fieldName>-->
+    <!--                </message>-->
+    <!--            </providers>-->
+    <!--        </encoder>-->
+    <!--        <rollingPolicy-->
+    <!--                class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">-->
+    <!--            &lt;!&ndash;            rollover daily and when the file reaches 10 MegaBytes&ndash;&gt;-->
+    <!--            &lt;!&ndash;            <fileNamePattern>C:\Users\ASUS\Desktop\azericard\new\receiver\log\${appName}\app-%d{yyyy-MM-dd}.%i.log.bak</fileNamePattern>&ndash;&gt;-->
+    <!--            <fileNamePattern>/app/log/${appName}/${appName}-debug-%d{yyyy-MM-dd}.%i.log</fileNamePattern>-->
+
+    <!--            <timeBasedFileNamingAndTriggeringPolicy-->
+    <!--                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">-->
+    <!--                <maxFileSize>250MB</maxFileSize>-->
+    <!--            </timeBasedFileNamingAndTriggeringPolicy>-->
+    <!--        </rollingPolicy>-->
+    <!--    </appender>-->
+
+    <!--    <logger name="businessLogger" level="DEBUG" additivity="true">-->
+    <!--        <appender-ref ref="business"/>-->
+    <!--    </logger>-->
+
+    <logger name="allLogger" level="INFO" additivity="true">
+        <appender-ref ref="all"/>
+    </logger>
+    <!--    LOG everything at INFO level-->
+    <root level="INFO">
+        <appender-ref ref="all"/>
+        <appender-ref ref="console"/>
+    </root>
+</configuration>

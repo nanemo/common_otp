@@ -1,0 +1,63 @@
+spring:
+  datasource:
+    username: postgres
+    password: 12345
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/otp_db?createDatabaseIfNotExist=true
+  jpa:
+    database: postgresql
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+  main:
+    allow-circular-references: true
+  mail:
+    host: smtp.gmail.com
+    port: 25
+    username: nanemodeveloper@gmail.com
+    password: ycibahxnntcjvvks
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          ssl:
+            trust: "*"
+          connection-timeout: 50000
+          timeout: 5000
+          write-timeout: 50000
+
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+
+logging:
+  level:
+    org:
+      springframework:
+        boot:
+          autoconfigure:
+            jdbc: DEBUG
+
+server:
+  port: 9090
+
+url:
+  sms:
+    service:
+      send: "http(s)://apps.lsim.az/quicksms/v1/send?"
+
+db:
+  file:
+    path: "localhost:5432/otp_db"
+
+otp:
+  expire:
+    duration: 3600
+
+exchange:
+  file:
+    path: "/default/exchange/path"
