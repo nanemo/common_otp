@@ -2,7 +2,7 @@ package com.poject.common.controller;
 
 import com.poject.common.model.dto.CommonResponse;
 import com.poject.common.model.dto.OTPResponse;
-import com.poject.common.model.entity.OTPEntity;
+import com.poject.common.model.entity.CommonOTPEntity;
 import com.poject.common.service.OTPService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,8 +20,8 @@ public class OTPController {
     @PostMapping("/generate/{length}/{send}")
     public ResponseEntity<OTPResponse> generateOtp(@PathVariable(value = "length", required = false) Integer length,
                                                    @PathVariable(value = "send", required = false) String send,
-                                                   @RequestBody OTPEntity otpEntity) {
-        return otpService.generateOtp(length, send, otpEntity);
+                                                   @RequestBody CommonOTPEntity commonOtpEntity) {
+        return otpService.generateOtp(length, send, commonOtpEntity);
     }
 
     @GetMapping("/status/{id}")

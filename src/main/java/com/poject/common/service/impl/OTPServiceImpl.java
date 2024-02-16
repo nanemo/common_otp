@@ -4,8 +4,8 @@ import com.poject.common.config.ApplicationConfiguration;
 import com.poject.common.constants.OTPStatus;
 import com.poject.common.model.dto.CommonResponse;
 import com.poject.common.model.dto.OTPResponse;
-import com.poject.common.model.dto.SMSRequestDto;
-import com.poject.common.model.entity.OTPEntity;
+import com.poject.common.model.entity.CommonOTPEntity;
+import com.poject.common.model.entity.OTPCode;
 import com.poject.common.repository.OTPEntityRepository;
 import com.poject.common.service.OTPService;
 import com.poject.common.service.SmsService;
@@ -19,9 +19,9 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
-import static java.lang.Boolean.valueOf;
 
 @Service
 public class OTPServiceImpl implements OTPService {
@@ -38,61 +38,42 @@ public class OTPServiceImpl implements OTPService {
     }
 
     @Override
-    public ResponseEntity<OTPResponse> generateOtp(Integer length, String send, OTPEntity otpEntity) {
-
-        LOGGER.info("REQUEST: {}", otpEntity);
-        //CHECKING INPUT --OTP MUST BETWEEN 4 TO 9--
-        if (length < 4 || length > 9) return ResponseEntity.badRequest().build();
+    public ResponseEntity<OTPResponse> generateOtp(String verificationText, Integer otpLength) {
         int otp = 0;
-        Boolean sendSMS = valueOf(send);
-        int fullDigit = (int) Math.pow(10, length);
+
+        if (otpLength == null) otpLength = 6;
+
+        //CHECKING INPUT --OTP MUST BETWEEN 4 TO 9--
+        if (otpLength < 4 || otpLength > 9) return ResponseEntity.badRequest().build();
+
+        int fullDigit = (int) Math.pow(10, otpLength);
         for (int i = 1; i < fullDigit; i *= 10) {
             int random = randomObject.nextInt(9) + 1;
             otp = otp + i * random;
         }
-        String smsText = otpEntity.getSmsText();
-        if (smsText != null) {
-            smsText = smsText.replace("{otp}", String.valueOf(otp));
+
+        String otpText = String.valueOf(otp);
+        String text;
+        if (verificationText != null) {
+            text = verificationText.replace("{otp}", otpText);
+        } else {
+            text = "Your verification code: " + otpText;
         }
-        LOGGER.info("OTP : {}", otp);
-        // set otp
-        otpEntity.setPassword(String.valueOf(otp));
-        try {
-            otpEntityRepository.save(otpEntity);
-            LOGGER.info("{}", otpEntity);
-        } catch (Exception ex) {
-            LOGGER.error(ex.getMessage(), ex);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-        if (Boolean.TRUE.equals(sendSMS)) try {
-            SMSRequestDto smsRequestDto = new SMSRequestDto(
-                    "GENERAL mobile",
-                    null,
-                    otpEntity.getPhone(),
-//                    otpEntity.getSmsText(),
-                    smsText != null ? smsText : "Sizin tesdiq kodunuz " + otp,
-                    null,
-                    "AZERCELL"
-            );
-            smsService.sendSms(smsRequestDto);
-        } catch (Exception ex) {
-            LOGGER.error(ex.getMessage(), ex);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-        OTPResponse respBody = new OTPResponse(
-                otpEntity.getId(),
-                otpEntity.getModule(),
-                otpEntity.getPhone(),
-                String.valueOf(otp),
-                sendSMS,
-                LocalDateTime.now().atZone(ZoneId.systemDefault()).toEpochSecond());
-        return ResponseEntity.status(HttpStatus.CREATED).body(respBody);
+
+        OTPResponse otpResponse = new OTPResponse(
+                text,
+                otpLength,
+                LocalDateTime.now().atZone(ZoneId.systemDefault()).toLocalDateTime());
+
+        LOGGER.info("OTP RESPONSE: {}", otpResponse);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(otpResponse);
     }
 
     @Override
     public ResponseEntity<CommonResponse> statusOtp(Long id) {
         String expireDuration = applicationConfiguration.getExpireDuration();
-        Optional<OTPEntity> optionalOTPEntity;
+        Optional<CommonOTPEntity> optionalOTPEntity;
         try {
             optionalOTPEntity = otpEntityRepository.findById(id);
         } catch (Exception ex) {
@@ -102,21 +83,25 @@ public class OTPServiceImpl implements OTPService {
         if (optionalOTPEntity.isEmpty())
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 
-        OTPEntity otpEntity = optionalOTPEntity.get();
+        CommonOTPEntity commonOtpEntity = optionalOTPEntity.get();
 
         // check expiration
-        if (LocalDateTime.now().minusSeconds(Long.parseLong(expireDuration)).isAfter(otpEntity.getInstanceDate())
-                && otpEntity.getStatus() != 1) {
-            otpEntity.setStatus(2); // 2 expired
+        List<OTPCode> otpCodeList = commonOtpEntity.getOtpCodeList();
+
+        LocalDateTime lastOTPCodeCreatedDate =
+
+        if (LocalDateTime.now().minusSeconds(Long.parseLong(expireDuration)).isAfter(lastOTPCodeCreatedDate)
+                && commonOtpEntity.getStatus() != 1) {
+            commonOtpEntity.setStatus(2); // 2 expired
             // update status in the DB
-            otpEntityRepository.save(otpEntity);
+            otpEntityRepository.save(commonOtpEntity);
         }
         // generate description
         Optional<OTPStatus> car = Arrays.stream(OTPStatus.values())
-                .filter(c -> c.getNumber() == otpEntity.getStatus())
+                .filter(c -> c.getNumber() == commonOtpEntity.getStatus())
                 .findFirst();
         String desc = car.isPresent() ? String.valueOf(car.get()) : "UNKNOWN";
-        CommonResponse response = new CommonResponse(otpEntity.getStatus() + "", desc);
+        CommonResponse response = new CommonResponse(commonOtpEntity.getStatus() + "", desc);
 
         return ResponseEntity.ok(response);
     }
@@ -126,15 +111,15 @@ public class OTPServiceImpl implements OTPService {
         LOGGER.info("Module : {}  MSISDN : {}  Password : {}", module, phoneNumber, password);
         if (module.equals("") || phoneNumber.equals("") || password.equals(""))
             return ResponseEntity.badRequest().build();
-        OTPEntity otpEntity;
+        CommonOTPEntity commonOtpEntity;
 
         // get OTP entity from DB
         try {
             // status 0 means waiting for response
-            otpEntity = otpEntityRepository
+            commonOtpEntity = otpEntityRepository
                     .findTopByModuleEqualsAndPhoneEqualsAndStatusEqualsOrderByInstanceDateDesc(module, phoneNumber, 0)
                     .orElseThrow(() -> new NotFoundException("No such entity"));
-            LOGGER.info("{}", otpEntity);
+            LOGGER.info("{}", commonOtpEntity);
         } catch (NotFoundException ex) {
             LOGGER.error(ex.getMessage(), ex);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -143,18 +128,18 @@ public class OTPServiceImpl implements OTPService {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
         // compare passwords
-        if (otpEntity.getPassword().equals(password)) {
+        if (commonOtpEntity.getOtp().equals(password)) {
             // update as verified and return HttpResponse 202
-            otpEntity.setStatus(1); // verified
-            otpEntityRepository.save(otpEntity);
+            commonOtpEntity.setStatus(1); // verified
+            otpEntityRepository.save(commonOtpEntity);
             return ResponseEntity.status(HttpStatus.ACCEPTED).build();
         }
         // otherwise +1 retry count return HttpResponse 406
-        otpEntity.setRetryCount(otpEntity.getRetryCount() + 1);
-        if (otpEntity.getRetryCount() >= 3) {
-            otpEntity.setStatus(3);
+        commonOtpEntity.setRetryCount(commonOtpEntity.getRetryCount() + 1);
+        if (commonOtpEntity.getRetryCount() >= 3) {
+            commonOtpEntity.setStatus(3);
         }
-        otpEntityRepository.save(otpEntity);
+        otpEntityRepository.save(commonOtpEntity);
         return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
     }
 }

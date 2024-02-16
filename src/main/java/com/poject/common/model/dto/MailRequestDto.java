@@ -4,7 +4,7 @@ package com.poject.common.model.dto;
 import java.io.Serializable;
 import java.util.Arrays;
 
-public class MailInputDto implements Serializable {
+public class MailRequestDto implements Serializable {
 
     private String[] emailTo;
     private String[] cc;
@@ -14,16 +14,16 @@ public class MailInputDto implements Serializable {
     private String attachmentName;
     private String attachmentBase64;
 
-    public MailInputDto() {
+    public MailRequestDto() {
     }
 
-    public MailInputDto(String[] emailTo,
-                        String[] cc,
-                        String[] bcc,
-                        String subject,
-                        String content,
-                        String attachmentName,
-                        String attachmentBase64) {
+    public MailRequestDto(String[] emailTo,
+                          String[] cc,
+                          String[] bcc,
+                          String subject,
+                          String content,
+                          String attachmentName,
+                          String attachmentBase64) {
         this.emailTo = emailTo;
         this.cc = cc;
         this.bcc = bcc;
@@ -37,7 +37,7 @@ public class MailInputDto implements Serializable {
         return emailTo;
     }
 
-    public MailInputDto setEmailTo(String[] emailTo) {
+    public MailRequestDto setEmailTo(String[] emailTo) {
         this.emailTo = emailTo;
         return this;
     }
@@ -46,7 +46,7 @@ public class MailInputDto implements Serializable {
         return cc;
     }
 
-    public MailInputDto setCc(String[] cc) {
+    public MailRequestDto setCc(String[] cc) {
         this.cc = cc;
         return this;
     }
@@ -55,7 +55,7 @@ public class MailInputDto implements Serializable {
         return bcc;
     }
 
-    public MailInputDto setBcc(String[] bcc) {
+    public MailRequestDto setBcc(String[] bcc) {
         this.bcc = bcc;
         return this;
     }
@@ -64,7 +64,7 @@ public class MailInputDto implements Serializable {
         return subject;
     }
 
-    public MailInputDto setSubject(String subject) {
+    public MailRequestDto setSubject(String subject) {
         this.subject = subject;
         return this;
     }
@@ -73,7 +73,7 @@ public class MailInputDto implements Serializable {
         return content;
     }
 
-    public MailInputDto setContent(String content) {
+    public MailRequestDto setContent(String content) {
         this.content = content;
         return this;
     }
@@ -82,7 +82,7 @@ public class MailInputDto implements Serializable {
         return attachmentName;
     }
 
-    public MailInputDto setAttachmentName(String attachmentName) {
+    public MailRequestDto setAttachmentName(String attachmentName) {
         this.attachmentName = attachmentName;
         return this;
     }
@@ -91,7 +91,7 @@ public class MailInputDto implements Serializable {
         return attachmentBase64;
     }
 
-    public MailInputDto setAttachmentBase64(String attachmentBase64) {
+    public MailRequestDto setAttachmentBase64(String attachmentBase64) {
         this.attachmentBase64 = attachmentBase64;
         return this;
     }

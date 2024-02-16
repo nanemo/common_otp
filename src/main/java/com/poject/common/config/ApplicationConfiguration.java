@@ -1,7 +1,5 @@
 package com.poject.common.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,17 +15,24 @@ import java.util.Properties;
 public class ApplicationConfiguration {
     public static final Map<String, String> mimeType = new HashMap<>();
 
-    private String urlSmsServiceSend;
+    @Value("${sms.service.url}")
+    private String smsServiceUrl;
+    @Value("${sms.service.login")
+    private String smsLogin;
+    @Value("${sms.service.key")
+    private String smsKey;
+    @Value("${otp.expire.duration}")
     private String expireDuration;
+    @Value("${db.file.path}")
     private String vaultDBUrl;
     @Value("${spring.mail.host}")
-    private String host;
+    private String mailHost;
     @Value("${spring.mail.port}")
-    private int port;
+    private int mailPort;
     @Value("${spring.mail.username}")
-    private String username;
+    private String mailUsername;
     @Value("${spring.mail.password}")
-    private String password;
+    private String mailPassword;
 
     @Bean
     public static Map<String, String> setMimeType() {
@@ -52,10 +57,10 @@ public class ApplicationConfiguration {
     @Bean
     public JavaMailSenderImpl javaMailSender() throws IOException {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-        mailSender.setHost(host);
-        mailSender.setPort(port);
-        mailSender.setUsername(username);
-        mailSender.setPassword(password);
+        mailSender.setHost(mailHost);
+        mailSender.setPort(mailPort);
+        mailSender.setUsername(mailUsername);
+        mailSender.setPassword(mailPassword);
 
         Properties props = mailSender.getJavaMailProperties();
         props.put("mail.transport.protocol", "smtp");
@@ -66,11 +71,15 @@ public class ApplicationConfiguration {
         return mailSender;
     }
 
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+
     public String getVaultDBUrl() {
         return vaultDBUrl;
     }
 
-    @Value("${db.file.path}")
     public ApplicationConfiguration setVaultDBUrl(String vaultDBUrl) {
         this.vaultDBUrl = vaultDBUrl;
         return this;
@@ -80,22 +89,32 @@ public class ApplicationConfiguration {
         return expireDuration;
     }
 
-    @Value("${otp.expire.duration}")
-    public void setExpireDuration(String expireDuration) {
+
+    public String setExpireDuration(String expireDuration) {
         this.expireDuration = expireDuration;
+        return this.expireDuration;
     }
 
-    public String getUrlSmsServiceSend() {
-        return urlSmsServiceSend;
+    public String getSmsServiceUrl() {
+        return smsServiceUrl;
     }
 
-    @Value("${url.sms.service.send}")
-    public void setUrlSmsServiceSend(String urlSmsServiceSend) {
-        this.urlSmsServiceSend = urlSmsServiceSend;
+
+    public String setSmsServiceUrl(String smsServiceUrl) {
+        this.smsServiceUrl = smsServiceUrl;
+        return smsServiceUrl;
     }
 
-    @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
+    public String getSmsLogin() {
+        return smsLogin;
     }
+
+    public void setSmsLogin(String smsLogin) {
+        this.smsLogin = smsLogin;
+    }
+
+    public String getSmsKey() {
+        return smsKey;
+    }
+
 }

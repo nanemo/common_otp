@@ -2,8 +2,10 @@ package com.poject.common.service.impl;
 
 import com.poject.common.config.ApplicationConfiguration;
 import com.poject.common.model.dto.CommonResponse;
-import com.poject.common.model.dto.MailInputDto;
+import com.poject.common.model.dto.MailRequestDto;
+import com.poject.common.model.dto.OTPResponse;
 import com.poject.common.service.MailService;
+import com.poject.common.service.OTPService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.Multipart;
 import jakarta.mail.internet.MimeBodyPart;
@@ -12,7 +14,6 @@ import jakarta.mail.internet.MimeMultipart;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -27,51 +28,59 @@ public class MailServiceImpl implements MailService {
     private static final Logger LOGGER = LoggerFactory.getLogger("businessLogger");
 
     private JavaMailSender javaMailSender;
+    private final OTPService otpService;
 
-    @Autowired
-    public void setJavaMailSender(JavaMailSender javaMailSender) {
+    public MailServiceImpl(JavaMailSender javaMailSender, OTPService otpService) {
         this.javaMailSender = javaMailSender;
+        this.otpService = otpService;
     }
 
     @Override
-    public ResponseEntity<CommonResponse> sendMail(MailInputDto mailInputDto) {
-        LOGGER.info("SENDING MAIL INPUT : {}", mailInputDto);
+    public ResponseEntity<CommonResponse> sendMailVerification(MailRequestDto mailRequestDto, Integer length) {
+        ResponseEntity<OTPResponse> otpResponseEntity = otpService.generateOtp(mailRequestDto.getContent(), length);
+
+        return sendMail(mailRequestDto);
+    }
+
+    @Override
+    public ResponseEntity<CommonResponse> sendMail(MailRequestDto mailRequestDto) {
+        LOGGER.info("SENDING MAIL INPUT : {}", mailRequestDto);
         try {
-            String emailTo = Arrays.toString(mailInputDto.getEmailTo());
+            String emailTo = Arrays.toString(mailRequestDto.getEmailTo());
             MimeMessage msg = javaMailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(msg, true);
 
-            if (mailInputDto.getAttachmentBase64() != null) {
+            if (mailRequestDto.getAttachmentBase64() != null) {
 
-                String fileType = mailInputDto.getAttachmentName().split("\\.")[1];
+                String fileType = mailRequestDto.getAttachmentName().split("\\.")[1];
 
                 if (ApplicationConfiguration.mimeType.containsKey(fileType)) {
                     String mimeValue = ApplicationConfiguration.mimeType.get(fileType);
                     MimeBodyPart content = new MimeBodyPart();
-                    content.setText(mailInputDto.getContent());
+                    content.setText(mailRequestDto.getContent());
 
                     MimeBodyPart mimeAttachment = new MimeBodyPart();
-                    mimeAttachment.setFileName(mailInputDto.getAttachmentName());
+                    mimeAttachment.setFileName(mailRequestDto.getAttachmentName());
                     // Attach the file to email
-                    mimeAttachment.setContent(Base64.getDecoder().decode(mailInputDto.getAttachmentBase64()), mimeValue);
+                    mimeAttachment.setContent(Base64.getDecoder().decode(mailRequestDto.getAttachmentBase64()), mimeValue);
 
                     Multipart multipart = new MimeMultipart();
                     multipart.addBodyPart(content);
                     multipart.addBodyPart(mimeAttachment);
                     msg.setContent(multipart);
                 } else {
-                    helper.addAttachment(mailInputDto.getAttachmentName(),
-                            new ByteArrayResource(Base64.getDecoder().decode(mailInputDto.getAttachmentBase64())));
+                    helper.addAttachment(mailRequestDto.getAttachmentName(),
+                            new ByteArrayResource(Base64.getDecoder().decode(mailRequestDto.getAttachmentBase64())));
                 }
             }
-            helper.setTo(mailInputDto.getEmailTo());
-            if (mailInputDto.getBcc() != null)
-                helper.setBcc(mailInputDto.getBcc());
-            if (mailInputDto.getCc() != null)
-                helper.setCc(mailInputDto.getCc());
+            helper.setTo(mailRequestDto.getEmailTo());
+            if (mailRequestDto.getBcc() != null)
+                helper.setBcc(mailRequestDto.getBcc());
+            if (mailRequestDto.getCc() != null)
+                helper.setCc(mailRequestDto.getCc());
             helper.setFrom("nanemodeveloper@gmail.com");
-            helper.setSubject(mailInputDto.getSubject());
-            helper.setText(mailInputDto.getContent());
+            helper.setSubject(mailRequestDto.getSubject());
+            helper.setText(mailRequestDto.getContent());
             javaMailSender.send(msg);
             LOGGER.info("EMAIL SUCCESSFULLY SENT TO : {}", emailTo);
         } catch (MessagingException exception) {

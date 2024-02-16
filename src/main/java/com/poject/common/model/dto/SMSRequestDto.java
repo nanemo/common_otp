@@ -1,35 +1,22 @@
 package com.poject.common.model.dto;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import lombok.Builder;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({
-        "RequestedBy",
-        "MessageId",
-        "PhoneNumber",
-        "Message",
-        "ScheduleDate",
-        "Operator"
-})
+@Builder
 public class SMSRequestDto implements Serializable {
 
     private static final long serialVersionUID = -3924046329982906718L;
-    @JsonProperty("RequestedBy")
-    private String requestedBy;
-    @JsonProperty("MessageId")
-    private Object messageId;
-    @JsonProperty("PhoneNumber")
+
+    private String login; // from property file
+    private String key; // from property file
     private String phoneNumber;
-    @JsonProperty("Message")
-    private String message;
-    @JsonProperty("ScheduleDate")
-    private Object scheduleDate;
-    @JsonProperty("Operator")
-    private String operator;
+    private String text;
+    private String sender;
+    private LocalDateTime scheduled;
+    private Boolean unicode;
 
     /**
      * No args constructor for use in serialization
@@ -37,86 +24,82 @@ public class SMSRequestDto implements Serializable {
     public SMSRequestDto() {
     }
 
-
-    public SMSRequestDto(String requestedBy, Object messageId, String phoneNumber, String message, Object scheduleDate, String operator) {
-        super();
-        this.requestedBy = requestedBy;
-        this.messageId = messageId;
+    public SMSRequestDto(String login, String key, String phoneNumber, String text, String sender, LocalDateTime scheduled, Boolean unicode) {
+        this.login = login;
+        this.key = key;
         this.phoneNumber = phoneNumber;
-        this.message = message;
-        this.scheduleDate = scheduleDate;
-        this.operator = operator;
+        this.text = text;
+        this.sender = sender;
+        this.scheduled = scheduled;
+        this.unicode = unicode;
     }
 
-    @JsonProperty("RequestedBy")
-    public String getRequestedBy() {
-        return requestedBy;
+    public String getLogin() {
+        return login;
     }
 
-    @JsonProperty("RequestedBy")
-    public void setRequestedBy(String requestedBy) {
-        this.requestedBy = requestedBy;
+    public void setLogin(String login) {
+        this.login = login;
     }
 
-    @JsonProperty("MessageId")
-    public Object getMessageId() {
-        return messageId;
+    public String getKey() {
+        return key;
     }
 
-    @JsonProperty("MessageId")
-    public void setMessageId(Object messageId) {
-        this.messageId = messageId;
+    public void setKey(String key) {
+        this.key = key;
     }
 
-    @JsonProperty("PhoneNumber")
     public String getPhoneNumber() {
         return phoneNumber;
     }
 
-    @JsonProperty("PhoneNumber")
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
 
-    @JsonProperty("Message")
-    public String getMessage() {
-        return message;
+    public String getText() {
+        return text;
     }
 
-    @JsonProperty("Message")
-    public void setMessage(String message) {
-        this.message = message;
+    public void setText(String text) {
+        this.text = text;
     }
 
-    @JsonProperty("ScheduleDate")
-    public Object getScheduleDate() {
-        return scheduleDate;
+    public String getSender() {
+        return sender;
     }
 
-    @JsonProperty("ScheduleDate")
-    public void setScheduleDate(Object scheduleDate) {
-        this.scheduleDate = scheduleDate;
+    public void setSender(String sender) {
+        this.sender = sender;
     }
 
-    @JsonProperty("Operator")
-    public String getOperator() {
-        return operator;
+    public LocalDateTime getScheduled() {
+        return scheduled;
     }
 
-    @JsonProperty("Operator")
-    public void setOperator(String operator) {
-        this.operator = operator;
+    public void setScheduled(LocalDateTime scheduled) {
+        this.scheduled = scheduled;
+    }
+
+    public Boolean getUnicode() {
+        return unicode;
+    }
+
+    public void setUnicode(Boolean unicode) {
+        this.unicode = unicode;
     }
 
     @Override
     public String toString() {
         return "SMSRequestDto{" +
-                "requestedBy='" + requestedBy + '\'' +
-                ", messageId=" + messageId +
+                "login='" + login + '\'' +
+                ", key='" + key + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
-                ", message='" + message + '\'' +
-                ", scheduleDate=" + scheduleDate +
-                ", operator='" + operator + '\'' +
+                ", text='" + text + '\'' +
+                ", sender='" + sender + '\'' +
+                ", scheduled=" + scheduled +
+                ", unicode=" + unicode +
                 '}';
     }
 }

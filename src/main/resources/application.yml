@@ -45,10 +45,15 @@ logging:
 server:
   port: 9090
 
-url:
-  sms:
-    service:
-      send: "http(s)://apps.lsim.az/quicksms/v1/send?"
+#SMS verification's configuration
+
+sms:
+  service:
+    url: "https://apps.lsim.az/quicksms/v1/smssender"
+    login: ""
+    key: ""
+
+
 
 db:
   file:
@@ -57,7 +62,3 @@ db:
 otp:
   expire:
     duration: 3600
-
-exchange:
-  file:
-    path: "/default/exchange/path"
