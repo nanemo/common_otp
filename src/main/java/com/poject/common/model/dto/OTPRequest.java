@@ -15,10 +15,10 @@ public class OTPRequest implements Serializable {
     private String login; // from property file
     private String key; // from property file
     private String receiver;
-    private LocalDateTime scheduled;
     private Boolean unicode;
     private String text;
     private String sender;
+    private LocalDateTime scheduled;
 
 
 }

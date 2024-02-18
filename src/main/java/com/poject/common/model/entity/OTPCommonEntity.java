@@ -18,23 +18,15 @@ public class OTPCommonEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String module;
-
     @Column(name = "phone_number")
     private String phoneNumber;
-
     private String email;
-
     private String text;
-
     private String otp;
-
     @Column(name = "retry_count")
     private int retryCount;
-
     private int status;
-
     @CreationTimestamp
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") // json formatter and parser
     private LocalDateTime created;
