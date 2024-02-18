@@ -1,13 +1,16 @@
 create database otp_db;
 
+drop table common_otp;
+
 create table common_otp
 (
-    otp_id        bigint primary key,
-    module        varchar(100),
-    phone_number  varchar(13),
-    sms_text      text,
-    password      varchar(64),
-    instance_date timestamp,
-    retry_count   integer,
-    status        integer
-)
+    id           bigint primary key,
+    module       varchar(100),
+    phone_number varchar(13),
+    email        varchar(64),
+    text         varchar(250),
+    otp          varchar(9) not null,
+    retry_count  integer,
+    status       int,
+    created      timestamp not null
+);

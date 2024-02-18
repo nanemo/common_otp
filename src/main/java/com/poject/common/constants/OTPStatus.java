@@ -9,7 +9,7 @@ public enum OTPStatus {
     }
 
 
-    public int getNumber() {
+    public int getStatus() {
         return number;
     }
 }

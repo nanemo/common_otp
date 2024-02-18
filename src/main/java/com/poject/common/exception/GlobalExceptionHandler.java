@@ -20,9 +20,8 @@ public class GlobalExceptionHandler {
 
     @Autowired
     public GlobalExceptionHandler() {
-
+        // TODO document why this constructor is empty
     }
-
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleExceptions(Exception e) {
@@ -35,6 +34,7 @@ public class GlobalExceptionHandler {
         LOGGER.error(ExceptionUtils.getStackTrace(e));
         return ResponseEntity.status(BAD_REQUEST).body(ValidationResult.badRequest());
     }
+
 }
 
 

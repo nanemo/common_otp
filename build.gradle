@@ -38,6 +38,8 @@ dependencies {
 
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation group: 'javassist', name: 'javassist', version: '3.12.1.GA'
+    implementation group: 'org.mapstruct', name: 'mapstruct-processor', version: '1.5.5.Final'
+    implementation group: 'org.mapstruct', name: 'mapstruct', version: '1.5.5.Final'
 
 }
 
