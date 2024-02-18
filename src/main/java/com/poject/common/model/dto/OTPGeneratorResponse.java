@@ -3,18 +3,18 @@ package com.poject.common.model.dto;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-public class OTPResponse implements Serializable {
+public class OTPGeneratorResponse implements Serializable {
     private String otp;
     private Integer length;
     private LocalDateTime created;
 
-    public OTPResponse(String otp, Integer length, LocalDateTime created) {
+    public OTPGeneratorResponse(String otp, Integer length, LocalDateTime created) {
         this.otp = otp;
         this.length = length;
         this.created = created;
     }
 
-    public OTPResponse() {
+    public OTPGeneratorResponse() {
     }
 
     public Integer getLength() {

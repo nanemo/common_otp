@@ -1,7 +1,6 @@
 package com.poject.common.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.annotation.Generated;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -14,7 +13,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class SMSResponseDto implements Serializable {
+public class VerificationResponse implements Serializable {
 
     private static final long serialVersionUID = 3130932563194348607L;
 
